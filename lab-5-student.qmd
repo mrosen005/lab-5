@@ -1,9 +1,17 @@
 ---
 title: "Lab 5: Murder in SQL City"
-author: "Your name here!"
+author: "Miriam Rosen"
 format: html
 editor: source
 embed-resources: true
+code-tools: true
+self-contained: true
+code-fold: true
+message: false
+warning: false
+execute:
+  echo: true
+  error: true 
 ---
 
 For this lab, you will be joining and filtering related datasets to solve a murder mystery!

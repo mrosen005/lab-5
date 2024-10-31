@@ -62,6 +62,7 @@ Detective Wickham reaches out to you...
 
 > A crime has taken place and I need your help! There was a murder in SQL City sometime on January 15, 2018. Could you retrieve the crime scene report from the police department’s database and follow the clues to find the person responsible for the murder?!
 
+
 ```{r}
 #| label: inspecting-crime-scene-report
 
@@ -72,13 +73,15 @@ crime_scene_report |>
          city == "SQL City"
          )
 
-print(crime_scene_report)
-
 
 
 ```
+In this step, I am filtering through the crime_scene_report data set based on the clues provided from Detective Wicham to narrow down the data to get the description of the data. 
+ 
+### Finding Witness 1
+
 ```{r}
-#| label: inspecting-witness-1
+#| label: finding-witness-1
 
 person |> 
   filter(address_street_name == "Northwestern Dr") |> 
@@ -89,8 +92,12 @@ person |>
   
 
 ```
+Now that I narrowed the crimes_scene_report dataset down to the correct case and have the description data which provides information regarding where the witnesses live, I am using the person data set to narrow down and find the first witness list.
+
+### Finding Witness 1
+
 ```{r}
-#| label: inspecting-witness-2
+#| label: finding-witness-2
 
 person |> 
   filter(address_street_name == "Franklin Ave",
@@ -100,16 +107,25 @@ person |>
          )
 
 ```
+Then, still using the description data set and person data set, I found the second witness. 
+
+### Examining Witness Interviews
+
 ```{r}
-#| label: interviews
+#| label: examining-witness-interviews
 
 interview |> 
   filter(person_id %in% c(16371, 14887))
 
 
 ```
+
+Now that I have the witnesses ID's, I used this to filter from the interview data set to get their transcripts which provides further clues as to who the murderer is.  
+
+### Using Witness's Clues
+
 ```{r}
-#| label: witness-hints
+#| label: using-witness-clues
 
 # I heard a gunshot and then saw a man run out. He had a "Get Fit Now Gym" bag. The membership number on the bag started with "48Z". Only gold members have those bags. The man got into a car with a plate that included "H42W".
 
@@ -145,13 +161,23 @@ get_fit_now_member |>
 
 ```
 
+In this step, I used the clues from the witness testimonies to narrow down to the suspected individual. 
+
+### Examining Suspect's Interview
+
 ```{r}
-#| label: Jeremy-Bowers
+#| label: examining-suspect's-interview
 
 interview |> 
   filter(person_id == "67318")
 ```
+In this step, I then checked the suspected individual's interview. From the interview, I gathered that Jeremy Bowers was the hitman. 
+
+### Finding Person Responsible
+
 ```{r}
+#| label: finding-person-responsible
+
 # I was hired by a woman with a lot of money. I don't know her name but I know she's around 5'5" (65") or 5'7" (67"). She has red hair and she drives a Tesla Model S. I know that she attended the SQL Symphony Concert 3 times in December 2017.
 
 drivers_license |> 
@@ -174,6 +200,7 @@ drivers_license |>
   filter(event_name == "SQL Symphony Concert")
 
 ```
+In this step, I used Jeremy's clue to figure out who hired him. 
 
 
 **Follow the evidence to the person responsible for the murder, building a report as you go.**

@@ -65,6 +65,95 @@ Detective Wickham reaches out to you...
 ```{r}
 #| label: inspecting-crime-scene-report
 
+crime_scene_report |> 
+  mutate(date = ymd(date)) |> 
+  filter(date == ymd("2018-01-15"), 
+         type == "murder",
+         city == "SQL City"
+         )
+
+print(crime_scene_report)
+
+
+
+```
+```{r}
+#| label: inspecting-witness-1
+
+person |> 
+  filter(address_street_name == "Northwestern Dr") |> 
+  arrange(address_number) |>
+  slice_max(order_by = address_number,
+            n = 1
+            )
+  
+
+```
+```{r}
+#| label: inspecting-witness-2
+
+person |> 
+  filter(address_street_name == "Franklin Ave",
+         (str_detect(name, "Annabel"
+                     )
+          )
+         )
+
+```
+```{r}
+#| label: interviews
+
+interview |> 
+  filter(person_id %in% c(16371, 14887))
+
+
+```
+```{r}
+#| label: gym-investigation
+
+# I heard a gunshot and then saw a man run out. He had a "Get Fit Now Gym" bag. The membership number on the bag started with "48Z". Only gold members have those bags. The man got into a car with a plate that included "H42W".
+
+# I saw the murder happen, and I recognized the killer from my gym when I was working out last week on January the 9th.
+
+get_fit_now_member |> 
+  filter(membership_status == "gold",
+         str_detect(id,
+                   "48Z"
+                   )
+         ) |>
+  left_join(get_fit_now_check_in,
+             by = c("id" = "membership_id"
+                     )
+              ) |>
+  mutate(check_in_date = ymd(check_in_date)) |>
+  filter(check_in_date == ymd("2018-01-09")) |>  
+  left_join(person, 
+            by = c("person_id" = "id"
+                   ) 
+         ) |> 
+  left_join(drivers_license,
+            by = c("license_id" = "id"
+                   )
+            ) |>
+  filter(str_detect(plate_number,
+                      "H42W"
+                  )
+          )
+  
+
+  
+
+```
+
+```{r}
+interview |> 
+  filter(person_id == "67318")
+```
+```{r}
+# I was hired by a woman with a lot of money. I don't know her name but I know she's around 5'5" (65") or 5'7" (67"). She has red hair and she drives a Tesla Model S. I know that she attended the SQL Symphony Concert 3 times in December 2017.
+
+
+
 ```
 
 

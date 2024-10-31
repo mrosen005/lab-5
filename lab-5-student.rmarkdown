@@ -14,6 +14,8 @@ execute:
   error: true 
 ---
 
+
+
 For this lab, you will be joining and filtering related datasets to solve a murder mystery!
 
 ## Instructions
@@ -41,6 +43,8 @@ You may find the `pull()` function handy for displaying each clue as you go alon
 
 This code chunk will read in all of the tables of data for you. Don't modify or remove this!
 
+
+
 ```{r}
 #| message: false
 #| warning: false
@@ -54,6 +58,8 @@ if (!"purrr" %in% installed.packages()) install.packages("purrr")
 source("https://raw.githubusercontent.com/atheobold/groupworthy-data-science/main/labs/instructions/lab-5-setup.R")
 ```
 
+
+
 ## Solve the Crime
 
 ### Crime Scene Report
@@ -63,6 +69,8 @@ Detective Wickham reaches out to you...
 > A crime has taken place and I need your help! There was a murder in SQL City sometime on January 15, 2018. Could you retrieve the crime scene report from the police department’s database and follow the clues to find the person responsible for the murder?!
 
 In this step, I am filtering through the crime_scene_report data set based on the clues provided from Detective Wickham to narrow down the data set to get the description of the crime.  
+
+
 
 
 ```{r}
@@ -79,9 +87,13 @@ crime_scene_report |>
 
 ```
 
+
+
 ### Finding Witness 1
 
 Now that I narrowed the crimes_scene_report data set down to the correct crime case and have the description data which provides information regarding where the witnesses live, I am using the person data set to narrow down and find the first witness list. 
+
+
 
 
 ```{r}
@@ -97,9 +109,13 @@ person |>
 
 ```
 
+
+
 ### Finding Witness 2
 
 Then, still using the description data as a clue, I am filtering through the person data set to find the second witness. 
+
+
 
 ```{r}
 #| label: finding-witness-2
@@ -113,9 +129,13 @@ person |>
 
 ```
 
+
+
 ### Examining Witness Interviews
 
 Now that I have the witnesses ID's, I am using this to filter from the interview data set to get their transcripts which provides further clues as to who the murderer is.  
+
+
 
 ```{r}
 #| label: examining-witness-interviews
@@ -127,9 +147,13 @@ interview |>
 ```
 
 
+
+
 ### Using Witness's Clues
 
 In this step, I am using the clues from the witness testimonies to narrow down to the suspected individual. 
+
+
 
 
 ```{r}
@@ -169,9 +193,13 @@ get_fit_now_member |>
 
 ```
 
+
+
 ### Examining Suspect's Interview
 
 In this step, I am checking the suspected individual's interview. From the interview, I gathered that Jeremy Bowers was the hit man. 
+
+
 
 ```{r}
 #| label: examining-suspect's-interview
@@ -181,9 +209,13 @@ interview |>
 ```
 
 
+
+
 ### Finding Person Responsible
 
 In this step, I am using Jeremy's clue from his interview to figure out who hired him for the murder 
+
+
 
 
 ```{r}
@@ -213,6 +245,8 @@ drivers_license |>
 ```
 
 
+
+
 **Follow the evidence to the person responsible for the murder, building a report as you go.**
 Hint: Make sure you check for interviews with any suspects!
 
@@ -220,3 +254,4 @@ Hint: Make sure you check for interviews with any suspects!
 ## And the final suspect is...
 
 *Put the name of the person responsible for the murder here:* Miranda Priestly
+

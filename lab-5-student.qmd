@@ -79,7 +79,7 @@ crime_scene_report |>
 
 ```
 
-### Finding Witness 1
+### Finding Witnesses
 
 Now that I narrowed the crimes_scene_report data set down to the correct crime case and have the description data which provides information regarding where the witnesses live, I am using the person data set to narrow down and find the first witness list. 
 
@@ -87,31 +87,29 @@ Now that I narrowed the crimes_scene_report data set down to the correct crime c
 ```{r}
 #| label: finding-witness-1
 
-person |> 
+
+
+
+witnesses <- bind_rows(person |> 
   filter(address_street_name == "Northwestern Dr") |> 
-  arrange(address_number) |>
   slice_max(order_by = address_number,
             n = 1
-            )
-  
-
-```
-
-### Finding Witness 2
-
-Then, still using the description data as a clue, I am filtering through the person data set to find the second witness. 
-
-```{r}
-#| label: finding-witness-2
-
-person |> 
+            ), 
+  person |> 
+  mutate(is_annabel = str_detect(name,
+                                 "^Annabel"
+                                 )
+         ) |>
   filter(address_street_name == "Franklin Ave",
-         (str_detect(name, "Annabel"
-                     )
+         is_annabel
           )
-         )
+  )
+
+
 
 ```
+
+Reflection: Firstly, to find the witness who lives at the last house on Northwestern Dr., I originally used the arrange() function with the slice_max() function since I needed to find the last house on the street, and therefore the largest address number. I realized using the arrange() function is an unnecessary step and took this function out since the slice_max() function arranges the data within this function. Secondly, I used the mutate() function to create a new column which detects the strings beginning with Annabel. I used the ^ symbol before Annabel in my code to specify that Annabel needs to happen at the beginning of the person's name. This is important because someone could potentially have the last name Annabel, but we are only looking for people with the first name Annabel. I also used the bind_rows() function which adds rows of data frames together with the same columns into one data frame. This is beneficial because it allowed me to obtain the interviews of both witnesses in one data frame.
 
 ### Examining Witness Interviews
 
@@ -120,12 +118,14 @@ Now that I have the witnesses ID's, I am using this to filter from the interview
 ```{r}
 #| label: examining-witness-interviews
 
-interview |> 
-  filter(person_id %in% c(16371, 14887))
 
+interview |> 
+    semi_join(witnesses, 
+            by = c("person_id" = "id")
+            )
 
 ```
-
+Reflection: Originally, I hard coded the person_id number. To make my code more flexible, I saved the narrowed-down witness results in a data frame. Then, I used the semi_join() function to combine this data frame with the interview data to access the witness's statements. 
 
 ### Using Witness's Clues
 
@@ -139,23 +139,24 @@ In this step, I am using the clues from the witness testimonies to narrow down t
 
 # I saw the murder happen, and I recognized the killer from my gym when I was working out last week on January the 9th.
 
+  
 get_fit_now_member |> 
   filter(membership_status == "gold",
          str_detect(id,
-                   "48Z"
+                   "^48Z"
                    )
          ) |>
-  left_join(get_fit_now_check_in,
+  inner_join(get_fit_now_check_in,
              by = c("id" = "membership_id"
                      )
               ) |>
   mutate(check_in_date = ymd(check_in_date)) |>
   filter(check_in_date == ymd("2018-01-09")) |>  
-  left_join(person, 
+  inner_join(person, 
             by = c("person_id" = "id"
                    ) 
          ) |> 
-  left_join(drivers_license,
+  inner_join(drivers_license,
             by = c("license_id" = "id"
                    )
             ) |>
@@ -163,11 +164,12 @@ get_fit_now_member |>
                       "H42W"
                   )
           )
-  
+
 
   
 
 ```
+Revision: I added a ^ to the string with 48Z to specify to narrow down membership_id's with 48Z at the beginning of the ID because the witness said they saw the suspect with a "Get Fit Now Gym" bag membership ID that began with 48Z. This is important because someone could have a membership ID that contains 48Z in it, but not at the beginning and since we know that the suspect's membership ID begins with 48Z, not specifying this could lead us to the wrong suspect. 
 
 ### Examining Suspect's Interview
 
@@ -180,7 +182,7 @@ interview |>
   filter(person_id == "67318")
 ```
 
-
+ 
 ### Finding Person Responsible
 
 In this step, I am using Jeremy's clue from his interview to figure out who hired him for the murder 
@@ -191,30 +193,43 @@ In this step, I am using Jeremy's clue from his interview to figure out who hire
 
 # I was hired by a woman with a lot of money. I don't know her name but I know she's around 5'5" (65") or 5'7" (67"). She has red hair and she drives a Tesla Model S. I know that she attended the SQL Symphony Concert 3 times in December 2017.
 
-drivers_license |> 
-  filter(height %in% c("65","66",
+
+suspect <- person |>
+  inner_join(drivers_license,
+             join_by(license_id == id)) |>
+  inner_join(facebook_event_checkin,
+             join_by(id == person_id)) |>
+  filter(height %in% c("65":"66",
                         "67"
                         ),
          hair_color == "red",
          car_make == "Tesla", 
          car_model == "Model S", 
-         gender == "female"
+         gender == "female",
+         event_name == "SQL Symphony Concert",
+         month(ymd(date)) == 12,
+         year(ymd(date)) == 2017
          ) |>
-  left_join(person,
-            by = c("id" = "license_id"
-                   )
-            )|> 
- left_join(facebook_event_checkin,
-            by = c("id.y" = "person_id"
-                   )
-           ) |> 
-  filter(event_name == "SQL Symphony Concert")
+print()
+
+
 
 ```
-
+Reflection: Originally, I joined my data frames incorrectly, not using the correct joining variable. In my revision, I joined my data frames first and then filtered based on the clues provided by the hit man. I realized I need to make sure I am joining by the keys so that my joined data frame does not repeat variables. 
 
 **Follow the evidence to the person responsible for the murder, building a report as you go.**
 Hint: Make sure you check for interviews with any suspects!
+
+```{r}
+
+interview |> 
+  semi_join(suspect,
+            by = c("person_id" = "id")
+            ) |> 
+  filter(person_id == "99716")
+
+```
+Reflection: I did not originally think to check Miranda's interview to make sure she wasn't hired by someone. I used a semi_join() to join the interview data frame and suspect data frame and then filtered for the ID I got from the hit man's interview to get the suspect's interview. Since there was no interview, I concluded this was the final suspect. 
 
 
 ## And the final suspect is...

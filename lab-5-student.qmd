@@ -109,7 +109,7 @@ witnesses <- bind_rows(person |>
 
 ```
 
-Reflection: Firstly, to find the witness who lives at the last house on Northwestern Dr., I originally used the arrange() function with the slice_max() function since I needed to find the last house on the street, and therefore the largest address number. I realized using the arrange() function is an unnecessary step and took this function out since the slice_max() function arranges the data within this function. Secondly, I used the mutate() function to create a new column which detects the strings beginning with Annabel. I used the ^ symbol before Annabel in my code to specify that Annabel needs to happen at the beginning of the person's name. This is important because someone could potentially have the last name Annabel, but we are only looking for people with the first name Annabel. I also used the bind_rows() function which adds rows of data frames together with the same columns into one data frame. This is beneficial because it allowed me to obtain the interviews of both witnesses in one data frame.
+Reflection: Firstly, to find the witness who lives at the last house on Northwestern Dr., I originally used the arrange() function with the slice_max() function since I needed to find the last house on the street, and therefore the largest address number. I realized using the arrange() function is an unnecessary step and took this function out since the slice_max() function arranges the data within this function. Secondly, I used the mutate() function to create a new column which detects the strings beginning with Annabel. I used the ^ symbol before Annabel in my code to specify that Annabel needs to happen at the beginning of the person's name. This is important because someone could potentially have the last name Annabel, but we are only looking for people with the first name Annabel. I also used the bind_rows() function which adds rows of data frames together with the same columns into one data frame. This is beneficial because it allowed me to obtain the interviews of both witnesses in one data frame, making my code more efficient. 
 
 ### Examining Witness Interviews
 
@@ -140,7 +140,7 @@ In this step, I am using the clues from the witness testimonies to narrow down t
 # I saw the murder happen, and I recognized the killer from my gym when I was working out last week on January the 9th.
 
   
-get_fit_now_member |> 
+potential_suspect <- get_fit_now_member |> 
   filter(membership_status == "gold",
          str_detect(id,
                    "^48Z"
@@ -179,8 +179,11 @@ In this step, I am checking the suspected individual's interview. From the inter
 #| label: examining-suspect's-interview
 
 interview |> 
-  filter(person_id == "67318")
+  semi_join(potential_suspect, 
+            by = join_by(person_id)
+            )
 ```
+Reflection: Originally, I hard coded the person_id number. To make my code more flexible, I saved my initial suspect results in a data frame. Then, I used the semi_join() function to combine this data frame with the interview data to access the suspect's statements.
 
  
 ### Finding Person Responsible
@@ -225,8 +228,7 @@ Hint: Make sure you check for interviews with any suspects!
 interview |> 
   semi_join(suspect,
             by = c("person_id" = "id")
-            ) |> 
-  filter(person_id == "99716")
+            ) 
 
 ```
 Reflection: I did not originally think to check Miranda's interview to make sure she wasn't hired by someone. I used a semi_join() to join the interview data frame and suspect data frame and then filtered for the ID I got from the hit man's interview to get the suspect's interview. Since there was no interview, I concluded this was the final suspect. 
